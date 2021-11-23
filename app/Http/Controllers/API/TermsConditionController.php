@@ -37,23 +37,17 @@ class TermsConditionController extends Controller {
         $sec_type_id = $request->input('sec_type_id');
         $description = $request->input('description');
 
-        $validator = Validator::make($request->all(), [
-                    'user_type_id' => 'required|exists:user_types,id',
-                    'sec_type_id' => 'required|exists:section_types,id',
-                    'description' => 'required'
-        ]);
+        if ($user_type_id && $sec_type_id && $description) {
+            $termsCondition = new TermsCondition();
+            $termsCondition->user_type_id = $user_type_id;
+            $termsCondition->sec_type_id = $sec_type_id;
+            $termsCondition->description = $description;
+            $termsCondition->save();
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
+            return response()->json(['http_status' => 'success', 'message' => 'Terms and Conditions created successfully.'], 200);
+        } else {
+            return response()->json(['http_status' => 'error', 'message' => 'All Fields are Required']);
         }
-
-        $termsCondition = new TermsCondition();
-        $termsCondition->user_type_id = $user_type_id;
-        $termsCondition->sec_type_id = $sec_type_id;
-        $termsCondition->description = $description;
-        $termsCondition->save();
-
-        return response()->json(['success' => true, 'data' => $termsCondition, 'message' => 'Terms and Conditions created successfully.'], 200);
     }
 
     /**
@@ -86,27 +80,23 @@ class TermsConditionController extends Controller {
         $sec_type_id = $request->input('sec_type_id');
         $description = $request->input('description');
 
-        $validator = Validator::make($request->all(), [
-                    'user_type_id' => 'required|exists:user_types,id',
-                    'sec_type_id' => 'required|exists:section_types,id',
-                    'description' => 'required'
-        ]);
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
+        if ($user_type_id && $sec_type_id && $description) {
+
+            $termsCondition = TermsCondition::where('id', '=', $term_id)->first();
+
+            if ($termsCondition == null) {
+                return response()->json(["error" => 'Terms and Conditions not found'], 400);
+            }
+
+            $termsCondition->user_type_id = $user_type_id;
+            $termsCondition->sec_type_id = $sec_type_id;
+            $termsCondition->description = $description;
+            $termsCondition->save();
+
+            return response()->json(['http_status' => 'success', 'message' => 'Terms and Conditions created successfully.'], 200);
+        } else {
+            return response()->json(['http_status' => 'error', 'message' => 'All Fields are Required']);
         }
-
-        $termsCondition = TermsCondition::where('id', '=', $term_id)->first();
-
-        if ($termsCondition == null) {
-            return response()->json(["error" => 'Terms and Conditions not found'], 400);
-        }
-
-        $termsCondition->user_type_id = $user_type_id;
-        $termsCondition->sec_type_id = $sec_type_id;
-        $termsCondition->description = $description;
-        $termsCondition->save();
-
-        return response()->json(['success' => true, 'data' => $termsCondition, 'message' => 'Terms and Conditions updated successfully.'], 200);
     }
 
     /**
